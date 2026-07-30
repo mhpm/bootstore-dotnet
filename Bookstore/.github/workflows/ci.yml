@@ -1,0 +1,13 @@
+name: BookStore CI
+
+on:
+    workflow_dispatch:
+
+jobs:
+    hello:
+        runs-on: ubuntu-lastest
+        steps:
+            - name: Saludar
+              run: echo "Hola desde GitHub Actions 🚀"
+
+    
