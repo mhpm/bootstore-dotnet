@@ -22,3 +22,6 @@ jobs:
 
       - name: Restore NuGet Packages
         run: dotnet restore BookStore.slnx
+
+      - name: Build Solution
+        run: dotnet build BookStore.slnx --configuration Release --no-restore
