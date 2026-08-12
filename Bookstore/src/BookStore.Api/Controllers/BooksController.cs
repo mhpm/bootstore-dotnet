@@ -1,3 +1,4 @@
+using BookStore.Api.Common;
 using BookStore.Api.DTOs;
 using BookStore.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -6,49 +7,56 @@ namespace BookStore.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BooksController : ControllerBase
+public class BooksController(BookService bookService) : ControllerBase
 {
-    private readonly BookService _bookService;
-
-    public BooksController(BookService bookService)
-    {
-        _bookService = bookService;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        return Ok(await _bookService.GetAllAsync());
+        var result = await bookService.GetAllAsync();
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : Problem(
+                title: result.Error!.Code,
+                detail: result.Error.Message,
+                statusCode: StatusCodes.Status500InternalServerError);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var book = await _bookService.GetByIdAsync(id);
+        var result = await bookService.GetByIdAsync(id);
 
-        if (book is null)
-            return NotFound();
+        if (result.IsSuccess)
+            return Ok(result.Value);
 
-        return Ok(book);
+        return MapError(result.Error!);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateBookRequest request)
+    public async Task<IActionResult> Create(
+        CreateBookRequest request)
     {
-        var createdBook = await _bookService.CreateAsync(request);
+        var result = await bookService.CreateAsync(request);
 
-        return CreatedAtAction(nameof(GetById),
-            new { id = createdBook.Id },
-            createdBook);
+        if (!result.IsSuccess)
+            return MapError(result.Error!);
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = result.Value!.Id },
+            result.Value);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateBookRequest request)
+    public async Task<IActionResult> Update(
+        int id,
+        UpdateBookRequest request)
     {
-        var updated = await _bookService.UpdateAsync(id, request);
+        var result = await bookService.UpdateAsync(id, request);
 
-        if (!updated)
-            return NotFound();
+        if (!result.IsSuccess)
+            return MapError(result.Error!);
 
         return NoContent();
     }
@@ -56,11 +64,29 @@ public class BooksController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _bookService.DeleteAsync(id);
+        var result = await bookService.DeleteAsync(id);
 
-        if (!deleted)
-            return NotFound();
+        if (!result.IsSuccess)
+            return MapError(result.Error!);
 
         return NoContent();
+    }
+
+    private IActionResult MapError(Error error)
+    {
+        return error.Code switch
+        {
+            "Book.NotFound" => NotFound(
+                new
+                {
+                    error.Code,
+                    error.Message
+                }),
+
+            _ => Problem(
+                title: error.Code,
+                detail: error.Message,
+                statusCode: StatusCodes.Status400BadRequest)
+        };
     }
 }

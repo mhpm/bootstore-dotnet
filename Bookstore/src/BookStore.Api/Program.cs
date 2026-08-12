@@ -1,8 +1,9 @@
-using BookStore.Api.Models;
+using BookStore.Api.Data;
 using BookStore.Api.Repositories;
 using BookStore.Api.Rules;
 using BookStore.Api.Services;
-using BookStore.Api.Data;
+using BookStore.Api.Validators;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,10 +14,14 @@ builder.Services.AddDbContext<BookStoreDbContext>(options =>
         builder.Configuration.GetConnectionString("BookStore"));
 });
 
-// Add services to the container.
+// Controllers
 builder.Services.AddControllers();
 
+// ProblemDetails
 builder.Services.AddProblemDetails();
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateBookRequestValidator>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -35,7 +40,7 @@ builder.Services.AddScoped<IBookDeletionRule, HistoricalBookDeletionRule>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -6,22 +6,39 @@ using BookStore.Api.Rules;
 
 namespace BookStore.Api.Services;
 
-public class BookService(IBookRepository repository, IEnumerable<IBookDeletionRule> deletionRules)
+public class BookService(
+    IBookRepository repository,
+    IEnumerable<IBookDeletionRule> deletionRules)
 {
-    public async Task<IEnumerable<BookResponse>> GetAllAsync()
+    public async Task<Result<IEnumerable<BookResponse>>> GetAllAsync()
     {
-        return (await repository.GetAllAsync())
-            .Select(book => book.ToResponse());
+        var books = await repository.GetAllAsync();
+
+        var response = books
+            .Select(book => book.ToResponse())
+            .ToList();
+
+        return Result<IEnumerable<BookResponse>>.Success(response);
     }
 
-    public async Task<BookResponse?> GetByIdAsync(int id)
+    public async Task<Result<BookResponse>> GetByIdAsync(int id)
     {
         var book = await repository.GetByIdAsync(id);
 
-        return book?.ToResponse();
+        if (book is null)
+        {
+            return Result<BookResponse>.Failure(
+                new Error(
+                    "Book.NotFound",
+                    "The requested book was not found."));
+        }
+
+        return Result<BookResponse>.Success(
+            book.ToResponse());
     }
 
-    public async Task<BookResponse> CreateAsync(CreateBookRequest request)
+    public async Task<Result<BookResponse>> CreateAsync(
+        CreateBookRequest request)
     {
         var book = request.ToEntity();
 
@@ -29,21 +46,29 @@ public class BookService(IBookRepository repository, IEnumerable<IBookDeletionRu
 
         var createdBook = await repository.GetByIdAsync(book.Id);
 
-        return (createdBook ?? book).ToResponse();
+        return Result<BookResponse>.Success(
+            (createdBook ?? book).ToResponse());
     }
 
-    public async Task<bool> UpdateAsync(int id, UpdateBookRequest request)
+    public async Task<Result> UpdateAsync(
+        int id,
+        UpdateBookRequest request)
     {
         var book = await repository.GetByIdAsync(id);
 
         if (book is null)
-            return false;
+        {
+            return Result.Failure(
+                new Error(
+                    "Book.NotFound",
+                    "The requested book was not found."));
+        }
 
         book.UpdateFrom(request);
 
         await repository.UpdateAsync(book);
 
-        return true;
+        return Result.Success();
     }
 
     public async Task<Result> DeleteAsync(int id)
@@ -52,7 +77,10 @@ public class BookService(IBookRepository repository, IEnumerable<IBookDeletionRu
 
         if (book is null)
         {
-            return Result.Failure("Book not found.", StatusCodes.Status404NotFound);
+            return Result.Failure(
+                new Error(
+                    "Book.NotFound",
+                    "The requested book was not found."));
         }
 
         foreach (var rule in deletionRules)
@@ -64,5 +92,4 @@ public class BookService(IBookRepository repository, IEnumerable<IBookDeletionRu
 
         return Result.Success();
     }
-
 }
