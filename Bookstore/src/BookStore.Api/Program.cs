@@ -16,6 +16,8 @@ builder.Services.AddDbContext<BookStoreDbContext>(options =>
 // Add services to the container.
 builder.Services.AddControllers();
 
+builder.Services.AddProblemDetails();
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -39,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 

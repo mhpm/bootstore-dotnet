@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace BookStore.Api.Validators;
 
-public class CreateBookRequestValidator : AbstractValidator<CreateBookRequest>
+public class UpdateBookRequestValidator : AbstractValidator<UpdateBookRequest>
 {
-    public CreateBookRequestValidator()
+    public UpdateBookRequestValidator()
     {
         RuleFor(x => x.Title)
             .NotEmpty()

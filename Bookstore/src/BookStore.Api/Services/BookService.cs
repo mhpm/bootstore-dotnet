@@ -1,3 +1,4 @@
+using BookStore.Api.Common;
 using BookStore.Api.DTOs;
 using BookStore.Api.Mappings;
 using BookStore.Api.Repositories;
@@ -45,12 +46,14 @@ public class BookService(IBookRepository repository, IEnumerable<IBookDeletionRu
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<Result> DeleteAsync(int id)
     {
         var book = await repository.GetByIdAsync(id);
 
         if (book is null)
-            return false;
+        {
+            return Result.Failure("Book not found.", StatusCodes.Status404NotFound);
+        }
 
         foreach (var rule in deletionRules)
         {
@@ -59,7 +62,7 @@ public class BookService(IBookRepository repository, IEnumerable<IBookDeletionRu
 
         await repository.DeleteAsync(id);
 
-        return true;
+        return Result.Success();
     }
 
 }
