@@ -1,1 +1,0 @@
-Business rules belong to the Application layer in this stage of the migration.
