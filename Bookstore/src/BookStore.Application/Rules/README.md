@@ -1,1 +1,0 @@
-Deletion rules are application-level business policies. Their abstractions depend on Domain entities, while infrastructure remains outside this layer.
