@@ -1,0 +1,1 @@
+The Application layer depends on Domain. It must not depend on ASP.NET Core, EF Core, PostgreSQL, or other infrastructure technologies.
