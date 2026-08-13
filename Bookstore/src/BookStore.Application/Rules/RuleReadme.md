@@ -1,0 +1,1 @@
+Business rules belong to the Application layer.
