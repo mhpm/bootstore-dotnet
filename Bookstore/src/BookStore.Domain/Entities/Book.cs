@@ -8,6 +8,8 @@ public class Book
 
     public int AuthorId { get; private set; }
 
+    public Author? Author { get; private set; }
+
     public string ISBN { get; private set; } = string.Empty;
 
     public DateOnly PublishedDate { get; private set; }
