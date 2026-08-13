@@ -1,3 +1,4 @@
+using BookStore.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,29 +19,20 @@ public class GlobalExceptionHandler(
 
         var statusCode = exception switch
         {
-            BusinessRuleException =>
-                StatusCodes.Status409Conflict,
-
-            _ =>
-                StatusCodes.Status500InternalServerError
+            BusinessRuleException => StatusCodes.Status409Conflict,
+            _ => StatusCodes.Status500InternalServerError
         };
 
         var title = exception switch
         {
-            BusinessRuleException =>
-                "Business rule violation.",
-
-            _ =>
-                "An unexpected error occurred."
+            BusinessRuleException => "Business rule violation.",
+            _ => "An unexpected error occurred."
         };
 
         var detail = exception switch
         {
-            BusinessRuleException =>
-                exception.Message,
-
-            _ =>
-                "An unexpected error occurred while processing the request."
+            BusinessRuleException => exception.Message,
+            _ => "An unexpected error occurred while processing the request."
         };
 
         var problemDetails = new ProblemDetails
