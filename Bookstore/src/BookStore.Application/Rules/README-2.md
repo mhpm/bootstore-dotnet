@@ -1,1 +1,0 @@
-These rules are currently duplicated from the API during the incremental migration. The next PR will remove the API copies after the Application service is wired.
