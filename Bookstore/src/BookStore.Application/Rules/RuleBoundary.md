@@ -1,1 +1,0 @@
-Business rules live in the Application layer during this incremental migration. They operate on Domain entities and do not depend on infrastructure technologies.
