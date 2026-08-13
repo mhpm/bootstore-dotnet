@@ -1,8 +1,9 @@
-using BookStore.Api.Data;
-using BookStore.Api.Models;
+using BookStore.Application.Abstractions;
+using BookStore.Domain.Entities;
+using BookStore.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookStore.Api.Repositories;
+namespace BookStore.Infrastructure.Repositories;
 
 public class BookRepository(BookStoreDbContext context) : IBookRepository
 {
@@ -12,15 +13,15 @@ public class BookRepository(BookStoreDbContext context) : IBookRepository
     {
         return await _context.Books
             .AsNoTracking()
-            .Include(b => b.Author)
+            .Include(book => book.Author)
             .ToListAsync();
     }
 
     public async Task<Book?> GetByIdAsync(int id)
     {
         return await _context.Books
-            .Include(b => b.Author)
-            .FirstOrDefaultAsync(b => b.Id == id);
+            .Include(book => book.Author)
+            .FirstOrDefaultAsync(book => book.Id == id);
     }
 
     public async Task AddAsync(Book book)
@@ -36,16 +37,17 @@ public class BookRepository(BookStoreDbContext context) : IBookRepository
         if (existingBook is null)
             return;
 
-        existingBook.Title = book.Title;
-        existingBook.AuthorId = book.AuthorId;
-        existingBook.ISBN = book.ISBN;
-        existingBook.PublishedDate = book.PublishedDate;
-        existingBook.Price = book.Price;
-        existingBook.Stock = book.Stock;
-        existingBook.IsPremium = book.IsPremium;
-        existingBook.IsLoaned = book.IsLoaned;
-        existingBook.IsHistorical = book.IsHistorical;
-        existingBook.IsArchived = book.IsArchived;
+        existingBook.Update(
+            book.Title,
+            book.AuthorId,
+            book.ISBN,
+            book.PublishedDate,
+            book.Price,
+            book.Stock,
+            book.IsPremium,
+            book.IsLoaned,
+            book.IsHistorical,
+            book.IsArchived);
 
         await _context.SaveChangesAsync();
     }

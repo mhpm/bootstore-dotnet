@@ -26,7 +26,7 @@ public class BookStoreDbContext(DbContextOptions<BookStoreDbContext> options) : 
             entity.Property(b => b.Price).IsRequired();
             entity.Property(b => b.Stock).IsRequired();
 
-            entity.HasOne<Author>()
+            entity.HasOne(b => b.Author)
                 .WithMany()
                 .HasForeignKey(b => b.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade);

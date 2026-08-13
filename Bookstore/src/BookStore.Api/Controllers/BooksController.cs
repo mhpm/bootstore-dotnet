@@ -1,6 +1,6 @@
-using BookStore.Api.Common;
-using BookStore.Api.DTOs;
-using BookStore.Api.Services;
+using BookStore.Application.Common;
+using BookStore.Application.DTOs;
+using BookStore.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.Api.Controllers;
@@ -34,8 +34,7 @@ public class BooksController(BookService bookService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
-        CreateBookRequest request)
+    public async Task<IActionResult> Create(CreateBookRequest request)
     {
         var result = await bookService.CreateAsync(request);
 
@@ -49,9 +48,7 @@ public class BooksController(BookService bookService) : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(
-        int id,
-        UpdateBookRequest request)
+    public async Task<IActionResult> Update(int id, UpdateBookRequest request)
     {
         var result = await bookService.UpdateAsync(id, request);
 
@@ -76,12 +73,11 @@ public class BooksController(BookService bookService) : ControllerBase
     {
         return error.Code switch
         {
-            "Book.NotFound" => NotFound(
-                new
-                {
-                    error.Code,
-                    error.Message
-                }),
+            "Book.NotFound" => NotFound(new
+            {
+                error.Code,
+                error.Message
+            }),
 
             _ => Problem(
                 title: error.Code,
