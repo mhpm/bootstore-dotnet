@@ -1,18 +1,14 @@
-using BookStore.Api.Data;
-using BookStore.Api.Repositories;
-using BookStore.Api.Rules;
-using BookStore.Api.Services;
 using BookStore.Api.Validators;
+using BookStore.Application.Abstractions;
+using BookStore.Application.Rules;
+using BookStore.Application.Services;
+using BookStore.Infrastructure;
+using BookStore.Infrastructure.Repositories;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<BookStoreDbContext>(options =>
-{
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("BookStore"));
-});
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Controllers
 builder.Services.AddControllers();
@@ -30,10 +26,10 @@ builder.Services.AddSwaggerGen();
 // Repository
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 
-// Service
+// Application service
 builder.Services.AddScoped<BookService>();
 
-// Rules
+// Business rules
 builder.Services.AddScoped<IBookDeletionRule, PremiumBookDeletionRule>();
 builder.Services.AddScoped<IBookDeletionRule, LoanedBookDeletionRule>();
 builder.Services.AddScoped<IBookDeletionRule, HistoricalBookDeletionRule>();
@@ -48,11 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
