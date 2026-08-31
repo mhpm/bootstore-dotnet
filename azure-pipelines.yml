@@ -1,0 +1,29 @@
+name: BookStore CI
+
+trigger:
+  branches:
+    include:
+      - master
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- checkout: self
+
+- task: UseDotNet@2
+  displayName: 'Setup .NET SDK 10.x'
+  inputs:
+    packageType: 'sdk'
+    version: '10.0.x'
+    includePreviewVersions: true
+
+- script: |
+    dotnet restore BookStore.slnx
+    dotnet build BookStore.slnx --configuration $(buildConfiguration) --no-restore
+  workingDirectory: '$(Build.SourcesDirectory)/Bookstore'
+  displayName: 'Restore and Build Solution'
