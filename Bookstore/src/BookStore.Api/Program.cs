@@ -36,15 +36,14 @@ builder.Services.AddScoped<IBookDeletionRule, HistoricalBookDeletionRule>();
 
 var app = builder.Build();
 
-// HTTP pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
