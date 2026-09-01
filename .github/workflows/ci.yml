@@ -25,3 +25,12 @@ jobs:
 
       - name: Build Solution
         run: dotnet build BookStore.slnx --configuration Release --no-restore
+
+      - name: Publish Application
+        run: dotnet publish BookStore.slnx --configuration Release --output ./publish --no-build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BookStore
+          path: Bookstore/publish
