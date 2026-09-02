@@ -1,3 +1,4 @@
+using BookStore.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,10 +11,11 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<Data.BookStoreDbContext>(options =>
+        services.AddDbContext<BookStoreDbContext>(options =>
         {
             options.UseNpgsql(
-                configuration.GetConnectionString("BookStore"));
+                configuration.GetConnectionString("BookStore"),
+                npgsqlOptions => npgsqlOptions.MigrationsAssembly(typeof(DependencyInjection).Assembly.FullName));
         });
 
         return services;
