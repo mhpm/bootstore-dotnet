@@ -1,0 +1,45 @@
+name: BookStore CI
+
+trigger:
+  branches:
+    include:
+      - master
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- checkout: self
+
+- task: UseDotNet@2
+  displayName: 'Setup .NET SDK 10.x'
+  inputs:
+    packageType: 'sdk'
+    version: '10.0.x'
+    includePreviewVersions: true
+
+- script: |
+    dotnet restore BookStore.slnx
+    dotnet build BookStore.slnx --configuration $(buildConfiguration) --no-restore
+  workingDirectory: '$(Build.SourcesDirectory)/Bookstore'
+  displayName: 'Restore and Build Solution'
+
+# Publish the application
+- task: DotNetCoreCLI@2
+  displayName: 'Publish BookStore'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+# Publish the artifact for the Release Pipeline
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Artifact'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'BookStore'
