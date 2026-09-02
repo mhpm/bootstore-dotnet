@@ -33,13 +33,16 @@ steps:
   displayName: 'Publish BookStore'
   inputs:
     command: 'publish'
-    publishWebProjects: true
+    publishWebProjects: false
+    projects: 'Bookstore/src/BookStore.Api/BookStore.Api.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: true
 
 # Publish the artifact for the Release Pipeline
-- task: PublishPipelineArtifact@1
-  displayName: 'Publish Artifact'
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Build Artifacts'
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'
-    artifact: 'BookStore'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
